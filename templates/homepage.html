@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智藝諮商</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #4A90E2;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4A90E2;
+            color: white;
+        }
+        .options button:hover {
+            background-color: #357ABD;
+        }
+        .feedback-section {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f0f8ff;
+            min-height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+        .feedback {
+            font-size: 16px;
+            font-style: italic;
+            color: #555;
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1.5s, transform 1.5s;
+        }
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .feedback img {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>智藝諮商</h1>
+        <div class="options">
+            <button onclick="startCounseling()">開始使用諮商</button>
+            <button onclick="giveFeedback()">回饋諮商體驗</button>
+        </div>
+        <div class="feedback-section" id="feedbackContainer">
+            <p class="feedback" id="feedbackText">載入回饋心得中...</p>
+        </div>
+    </div>
+
+    <script>
+        function fetchFeedbacks() {
+            fetch('/get_feedbacks')
+                .then(response => response.json())
+                .then(data => {
+                    updateFeedbackDisplay(data);
+                })
+                .catch(error => {
+                    console.error('無法獲取回饋資料:', error);
+                });
+        }
+
+        function updateFeedbackDisplay(feedbacks) {
+            const feedbackContainer = document.getElementById("feedbackContainer");
+            feedbackContainer.innerHTML = "";
+            
+            if (feedbacks.length > 0) {
+                let index = 0;
+                const feedbackElement = document.createElement("p");
+                feedbackElement.classList.add("feedback");
+                feedbackContainer.appendChild(feedbackElement);
+                
+                function showNextFeedback() {
+                    feedbackElement.classList.remove("show");
+                    setTimeout(() => {
+                        feedbackElement.textContent = feedbacks[index].text + ' (' + feedbacks[index].time + ')';
+                        feedbackElement.classList.add("show");
+                        index = (index + 1) % feedbacks.length;
+                    }, 500);
+                }
+                
+                showNextFeedback();
+                setInterval(showNextFeedback, 4000);
+            } else {
+                feedbackContainer.innerHTML = `<img src="/static/images/couple_communication.png" alt="情侶溝通">`;
+            }
+        }
+        
+        function startCounseling() {
+            window.location.href = "/start_counseling";
+        }
+        
+        function giveFeedback() {
+            window.location.href = "/feedback_page";
+        }
+        
+        fetchFeedbacks();
+        setInterval(fetchFeedbacks, 10000); // 每 10 秒更新一次
+    </script>
+</body>
+</html>
