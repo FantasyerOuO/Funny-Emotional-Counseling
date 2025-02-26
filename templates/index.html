@@ -11,7 +11,7 @@
             text-align: center;
             margin: 0;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
             height: 100vh;
@@ -22,15 +22,17 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             width: 80%;
-            max-width: 500px;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
         }
-        h1 {
-            color: #4A90E2;
-            font-size: 28px;
-            margin-bottom: 20px;
+        .sidebar {
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .options button {
-            display: block;
+        .sidebar button {
             width: 100%;
             padding: 15px;
             margin: 10px 0;
@@ -41,15 +43,15 @@
             background-color: #4A90E2;
             color: white;
         }
-        .options button:hover {
+        .sidebar button:hover {
             background-color: #357ABD;
         }
         .feedback-section {
-            margin-top: 20px;
+            width: 65%;
             padding: 20px;
             border-radius: 10px;
             background: #f0f8ff;
-            min-height: 200px;
+            min-height: 300px;
             overflow: hidden;
             position: relative;
         }
@@ -68,19 +70,13 @@
             opacity: 1;
             transform: translateY(0);
         }
-        .feedback img {
-            width: 100%;
-            max-width: 400px;
-            border-radius: 10px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>智藝諮商</h1>
-        <div class="options">
-            <button onclick="startCounseling()">開始使用諮商</button>
-            <button onclick="giveFeedback()">回饋諮商體驗</button>
+        <div class="sidebar">
+            <button onclick="startChat()">開始聊天</button>
+            <button onclick="goToFeedback()">回饋心得</button>
         </div>
         <div class="feedback-section" id="feedbackContainer">
             <p class="feedback" id="feedbackText">載入回饋心得中...</p>
@@ -91,12 +87,8 @@
         function fetchFeedbacks() {
             fetch('/get_feedbacks')
                 .then(response => response.json())
-                .then(data => {
-                    updateFeedbackDisplay(data);
-                })
-                .catch(error => {
-                    console.error('無法獲取回饋資料:', error);
-                });
+                .then(data => updateFeedbackDisplay(data))
+                .catch(error => console.error('獲取回饋失敗:', error));
         }
 
         function updateFeedbackDisplay(feedbacks) {
@@ -121,20 +113,20 @@
                 showNextFeedback();
                 setInterval(showNextFeedback, 4000);
             } else {
-                feedbackContainer.innerHTML = `<img src="/static/images/couple_communication.png" alt="情侶溝通">`;
+                feedbackContainer.innerHTML = `<p>目前沒有回饋資料</p>`;
             }
         }
         
-        function startCounseling() {
-            window.location.href = "/start_counseling";
+        function startChat() {
+            window.location.href = "/chat";
         }
         
-        function giveFeedback() {
+        function goToFeedback() {
             window.location.href = "/feedback_page";
         }
         
         fetchFeedbacks();
-        setInterval(fetchFeedbacks, 10000); // 每 10 秒更新一次
+        setInterval(fetchFeedbacks, 10000); // 每 10 秒更新一次回饋
     </script>
 </body>
 </html>

@@ -29,6 +29,17 @@
             font-size: 28px;
             margin-bottom: 20px;
         }
+        .info-inputs {
+            margin-bottom: 20px;
+        }
+        .info-inputs input {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
         .chat-box {
             border: 1px solid #ccc;
             padding: 10px;
@@ -85,8 +96,14 @@
 <body>
     <div class="container">
         <h1>智藝諮商 - 聊天</h1>
+        <div class="info-inputs">
+            <input type="text" id="nickname" placeholder="暱稱">
+            <input type="number" id="age" placeholder="年齡">
+            <input type="text" id="gender" placeholder="性別">
+            <input type="text" id="relationship" placeholder="感情狀態">
+        </div>
         <div class="chat-box" id="chatBox">
-            <div class="message bot-message">👋 你好！請輸入你想對我諮詢的煩惱，讓我來嘗試幫助你吧!</div>
+            <div class="message bot-message">👋 你好！請輸入你的問題，我會幫助你。</div>
         </div>
         <div class="input-area">
             <input type="text" id="userInput" placeholder="請輸入訊息...">
@@ -97,6 +114,11 @@
     <script>
         function sendMessage() {
             let userInput = document.getElementById("userInput").value;
+            let nickname = document.getElementById("nickname").value || "匿名";
+            let age = document.getElementById("age").value || "未知";
+            let gender = document.getElementById("gender").value || "未知";
+            let relationship = document.getElementById("relationship").value || "未知";
+
             if (!userInput.trim()) return;
             
             let chatBox = document.getElementById("chatBox");
@@ -109,13 +131,25 @@
             document.getElementById("userInput").value = "";
             chatBox.scrollTop = chatBox.scrollHeight;
             
-            setTimeout(() => {
+            fetch('/chat_response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nickname: nickname,
+                    age: age,
+                    gender: gender,
+                    relationship: relationship,
+                    message: userInput
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 let botMessage = document.createElement("div");
                 botMessage.classList.add("message", "bot-message");
-                botMessage.innerText = "感謝你的訊息，我正在思考如何回應你...";
+                botMessage.innerText = data.response;
                 chatBox.appendChild(botMessage);
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, 1000);
+            });
         }
     </script>
 </body>
